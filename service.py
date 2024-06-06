@@ -1,35 +1,38 @@
 import requests
-import picamera
-import io
+import cv2
 import time
 import base64
 
 imagePath = "temp.png"
 
 def postImg():
-	
-    with picamera.PiCamera() as camera:
-        print("Opening Camera.")
-        time.sleep(2)
-        camera.capture(imagePath)
-        camera.close()
-        print("Image Captured!")
+    print("Opening Camera.")
+    cap = cv2.VideoCapture(0)
+    time.sleep(2)
     
-    imageFile = open(imagePath, "rb")
-    imageBytes = base64.b64encode(imageFile.read())
-    print("Sending image to cloud server for analysis.")
-    response = requests.post(
-		"http://174.138.58.241/detect",
-		data=imageBytes
-	)
-	
-    print("Response received!")
-    response_data = response.json()
-    print(response_data)    
+    ret, frame = cap.read()
+    if ret:
+        cv2.imwrite(imagePath, frame)
+        print("Image Captured!")
+    else:
+        print("Failed to capture image.")
+    
+    cap.release()
+    
+    with open(imagePath, "rb") as imageFile:
+        imageBytes = base64.b64encode(imageFile.read())
+        print("Sending image to cloud server for analysis.")
+        response = requests.post(
+            "http://localhost/detect",
+            data=imageBytes
+        )
+    
+        print("Response received!")
+        response_data = response.json()
+        print(response_data)    
             
 def main():
-    while True:
-        postImg()
+    postImg()
 
 if __name__ == '__main__':
     main()

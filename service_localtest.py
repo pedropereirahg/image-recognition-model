@@ -1,8 +1,5 @@
 import requests
-import io
 import base64
-import firebase
-import env
 
 def postImg(): 
     
@@ -12,16 +9,12 @@ def postImg():
     imageBytes = base64.b64encode(imageFile.read())
 
     response = requests.post(
-		"http://174.138.58.241/detect",
+		"http://localhost/detect",
 		data=imageBytes
 	)
     print("Response received!")
     response_data = response.json()
     print(response_data)
-    
-    db = firebase.Firebase()
-    db.authenticate()
-    db.push(response_data)
             
 def main():
     postImg()

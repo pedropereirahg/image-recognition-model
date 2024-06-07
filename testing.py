@@ -1,9 +1,22 @@
 import classify
-import base64
+import os
 
+def extractType(result):
+  maxType = None
+  maxValue = 0
+  for key in result:
+    if result[key] > maxValue:
+      maxType = key
+      maxValue = result[key]
+  return maxType
 
-imagePath = "testing.png"
-result = classify.analyse(imagePath)
+imagesFolder = "test-images"
 
-print(result)
+images = os.listdir(imagesFolder)
 
+for image in images:
+  imageName, imageExtension = os.path.splitext(image)
+  imagePath = os.path.join(imagesFolder, image)
+  result = classify.analyse(imagePath)
+  type = extractType(result)
+  print(imageName + imageExtension + " is probably " + type + " with a confidence of " + str(result[type] * 100) + "%")

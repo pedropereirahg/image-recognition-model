@@ -2,24 +2,24 @@ import os
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 
 def analyse(imageObj):
     # Read the image_data
-    image_data = tf.io.gfile.GFile(imageObj, 'rb').read()
+    image_data = tf.gfile.FastGFile(imageObj, 'rb').read()
 
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line 
-                        in tf.io.gfile.GFile("tf_files/retrained_labels.txt")]
+                        in tf.gfile.GFile("tf_files/retrained_labels.txt")]
 
     # Unpersists graph from file
-    with tf.io.gfile.GFile("tf_files/retrained_graph.pb", 'rb') as f:
-        graph_def = tf.compat.v1.GraphDef()
+    with tf.gfile.FastGFile("tf_files/retrained_graph.pb", 'rb') as f:
+        graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         _ = tf.import_graph_def(graph_def, name='')
 
-    with tf.compat.v1.Session() as sess:
+    with tf.Session() as sess:
         # Feed the image_data as input to the graph and get first prediction
         softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
         
